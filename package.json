@@ -1,6 +1,6 @@
 {
     "name": "ascii-worldmap",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "An ASCII world map written for NodeJS",
     "main": "index.js",
     "repository": "https://github.com/HenrySeed/ASCII-WorldMap-Node.git",
