@@ -1,4 +1,4 @@
-# ASCII-WorldMap-Node
+# ASCII-WorldMap
 
 # Usage
 
