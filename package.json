@@ -8,6 +8,7 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
+        "@math.gl/web-mercator": "^3.2.2",
         "@types/": "mapbox/sphericalmercator",
         "@types/node": "^14.11.5",
         "global-mercator": "^3.1.0",

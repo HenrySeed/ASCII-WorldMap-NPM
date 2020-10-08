@@ -1,4 +1,4 @@
-import { lngLatToMeters, metersToPixels } from "global-mercator";
+import WebMercatorViewport from "@math.gl/web-mercator";
 
 /**
  * Returns the inverse of a number in a range eg:
@@ -16,43 +16,54 @@ function inverseNumInRange(
     return maxNum + minNum - num;
 }
 
+
+
 const map = `
-        . _..::__:  ,-"-"._       |]       ,     _,.__              
-_.___ _ _<_>\`!(._\`.\`-.    /        _._     \`_ ,_/  '  '-._.---.-.__ 
-.{     " " \`-==,',._\\{  \\  / {)     / _ ">_,-' \`                 /-/_ 
-\\_.:--.       \`._ )\`^-. "'      , [_/(                       __,/-'  
-'"'    \\        "    _L       |-_,--'                  )     /. (|    
-       |           ,'         _)_.\\\\._<> {}              _,' /  '   
-       \`.         /          [_/_'\` \`"(                <'}  )       
-        \\\\    .-. )          /   \`-'"..' \`:._          _)  '        
- \`        \\  (  \`(          /         \`:\\  > \\  ,-^.  /' '          
-           \`._,   ""        |           \\\`'   \\|   ?_)  {\\          
-              \`=.---.       \`._._       ,'     "\`  |' ,- '.         
-                |    \`-._        |     /          \`:\`<_|=--._       
-                (        >       .     | ,          \`=.__.\`-'\\      
-                 \`.     /        |     |{|              ,-.,\\     . 
-                  |   ,'          \\   / \`'            ,"     \\      
-                  |  /             |_'                |  __  /      
-                  | |                                 '-'  \`-'   \\. 
-                  |/                                        "    /  
-                  \\.                                            '   
-                                                                    
-                   ,/           ______._.--._ _..---.---------.     
-__,-----"-..?----_/ )\\    . ,-'"             "                  (__--/
-                    /__/\\/                                          
+                                                                           
+        . _..::__:  ,-"-"._       |]       ,     _,.__                      
+_.___ _ _<_>\`!(._\`.\`-.    /        _._     \`_ ,_/  '  '-._.---.-.__     
+.{     " " \`-==,',._\\{  \\  / {)     / _ ">_,-' \`                 /-/_    
+\\_.:--.       \`._ )\`^-. "'      , [_/(                       __,/-'       
+'"'    \\        "    _L       |-_,--'                  )     /. (|         
+       |           ,'         _)_.\\\\._<> {}              _,' /  '         
+       \`.         /          [_/_'\` \`"(                <'}  )            
+        \\\\    .-. )          /   \`-'"..' \`:._          _)  '            
+ \`        \\  (  \`(          /         \`:\\  > \\  ,-^.  /' '             
+           \`._,   ""        |           \\\`'   \\|   ?_)  {\\             
+              \`=.---.       \`._._       ,'     "\`  |' ,- '.              
+                |    \`-._        |     /          \`:\`<_|=--._             
+                (        >       .     | ,          \`=.__.\`-'\\             
+                 \`.     /        |     |{|              ,-.,\\     .        
+                  |   ,'          \\   / \`'            ,"     \\            
+                  |  /             |_'                |  __  /                
+                  | |                                 '-'  \`-'   \\.         
+                  |/                                        "    /            
+                  \\.                                            '           
+                                                                             
+                   ,/           ______._.--._ _..---.---------.              
+__,-----"-..?----_/ )\\    . ,-'"             "                  (__--/    
+                    /__/\\/                                               
 `;
 
-type Marker = { x: number; y: number; label: string };
+type Marker = { x: number; y: number; label: string, icon: string };
 
 export class WorldMap {
     map_lines: string[];
     markers: Marker[];
     border: boolean;
+    viewport: WebMercatorViewport;
 
     constructor(border: boolean = false) {
         this.map_lines = map.split("\n");
         this.markers = [];
         this.border = border;
+        this.viewport = new WebMercatorViewport({
+            width: 75,
+            height: 23,
+            longitude: 0,
+            latitude: 0,
+            zoom: 0,
+        });
     }
 
     /**
@@ -65,34 +76,18 @@ export class WorldMap {
      * @memberof WorldMap
      */
     getXYfromLonLat(lon: number, lat: number): { x: number; y: number } {
-        const meters = lngLatToMeters([lon, lat]);
-        const pixels = metersToPixels(meters);
+		const pixels = this.viewport.project([lon, lat], { topLeft: true });
+        const normalX = (pixels[0] + 219) / (293 + 219);
+        const normalY = (pixels[1] + 244) / (266 + 244);
 
-        // // we standardise the coords in the given ranges here, so it becomes a percentage
-        // const xRange = { min: -20037508.34, max: 20037508.34 };
-        // const yRange = { min: -20048966.1, max: 20048966.1 };
-        // const x_percent = (x - xRange.min) / (xRange.max - xRange.min);
-        // const y_percent = (y - yRange.min) / (yRange.max - yRange.min);
+		const [width, height] = [70, 45];
+		const realX = normalX * width - 3
+		const realY = normalY * height - 9
 
-        // // we then take that percentage and apply it to the map width or height
-        // const mapCols = 69;
-        // const mapRows = 41;
-        // const mapX = Math.floor(x_percent * mapCols);
-        // let mapY = Math.floor(y_percent * mapRows);
-
-        // // we have to reverse the y
-        // mapY = inverseNumInRange(mapY, 0, mapRows);
-
-        // // Anything above or below our
-        // const topMargin = 10;
-        // const bottomMargin = 10;
-        // if (mapY - topMargin < 0 || mapY > mapRows - bottomMargin) {
-        //     throw Error(
-        //         `The Lat, Lon (${lon}, ${lat}) was above or below our margins`
-        //     );
-        // }
-        // return { x: mapX, y: mapY - topMargin };
-        return { x: Math.floor(pixels[0]) - 7, y: Math.floor(pixels[1]) - 197 };
+        return {
+            x: Math.floor(realX),
+            y: Math.floor(realY)
+        };
     }
 
     /**
@@ -102,7 +97,7 @@ export class WorldMap {
      */
     getDimensions(): { width: number; height: number } {
         const widths: number[] = this.map_lines.map(
-            val => val.replace(/\n/g, "").length
+            (val) => val.replace(/\n/g, "").length
         );
         return { width: Math.max(...widths), height: this.map_lines.length };
     }
@@ -122,13 +117,13 @@ export class WorldMap {
      * @param {*} char
      * @memberof WorldMap
      */
-    addMarker(data: { lon: number; lat: number; label: string }): void {
-        const { lon: lon, lat: lat, label: label } = data;
+    addMarker(data: { lon: number; lat: number; label: string, icon: string }): void {
+        const { lon: lon, lat: lat, label: label, icon: icon } = data;
         const { x: markerX, y: markerY } = this.getXYfromLonLat(lon, lat);
         console.log(
             `Converting ${label} lon,lat to x,y\n{lon: ${lon}, lat: ${lat}}\n{x: ${markerX}, y: ${markerY}}\n`
         );
-        this.markers.push({ x: markerX, y: markerY, label: label });
+        this.markers.push({ x: markerX, y: markerY, label: label, icon: icon });
     }
 
     /**
@@ -160,17 +155,20 @@ export class WorldMap {
     drawMapAndMarkers(): string {
         const map_str = this.getRawMapString().split("\n");
         const markerMap = new Map(
-            this.markers.map(val => [`${val.x}:${val.y}`, "#"])
+            this.markers.map((val) => [`${val.x}:${val.y}`, val.icon])
         );
         const margin = this.border ? 1 : 0;
+		console.log(markerMap)
 
         let _ret: string[] = [];
 
         map_str.forEach((row, index) => {
-            let newLine = "";
+			let newLine = "";
+
             Array.from(row).forEach((col, colIndex) => {
-                const markerKey = `${colIndex - margin}:${index - margin}`;
+				const markerKey = `${colIndex - margin}:${index - margin}`;
                 if (markerMap.get(markerKey)) {
+
                     newLine += markerMap.get(markerKey);
                 } else {
                     newLine += col;

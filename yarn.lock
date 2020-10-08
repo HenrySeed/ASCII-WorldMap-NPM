@@ -2,6 +2,21 @@
 # yarn lockfile v1
 
 
+"@babel/runtime@^7.0.0":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
+  integrity sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@math.gl/web-mercator@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@math.gl/web-mercator/-/web-mercator-3.2.2.tgz#93e66ded7f3004b92bc931da3e32ef244189679b"
+  integrity sha512-uZbLlST7gbfJV227Ev1oShpYQGon9Nk/i0AoM81mVoEYtd+XxKuoDBYaRIdPNVkkALwF9xFG1lwxHqblrs3v5w==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    gl-matrix "^3.0.0"
+
 "@types/@mapbox/sphericalmercator":
   version "1.1.0"
   resolved "https://codeload.github.com/mapbox/sphericalmercator/tar.gz/224e280ef3cdd6ad46a8dc7ec0972a026b4ad697"
@@ -10,9 +25,19 @@
   version "14.11.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.5.tgz#fecad41c041cae7f2404ad4b2d0742fdb628b305"
 
+gl-matrix@^3.0.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.3.0.tgz#232eef60b1c8b30a28cbbe75b2caf6c48fd6358b"
+  integrity sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA==
+
 global-mercator@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/global-mercator/-/global-mercator-3.1.0.tgz#011b37862f1ca858400d3e97a4e88f527148af2a"
+
+regenerator-runtime@^0.13.4:
+  version "0.13.7"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
+  integrity sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
 
 typescript@^4.0.3:
   version "4.0.3"
