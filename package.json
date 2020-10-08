@@ -1,12 +1,11 @@
 {
     "name": "ascii-worldmap",
     "version": "1.0.1",
-    "description": "An ASCII world map written in JS",
+    "description": "An ASCII world map written for NodeJS",
     "main": "index.js",
     "repository": "https://github.com/HenrySeed/ASCII-WorldMap-Node.git",
     "author": "Henry Seed <henryseed.dev@gmail.com>",
     "license": "MIT",
-    "private": true,
     "dependencies": {
         "@math.gl/web-mercator": "^3.2.2",
         "@types/node": "^14.11.5"

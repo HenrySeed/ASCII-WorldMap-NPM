@@ -1,4 +1,4 @@
-import { drawASCIIMap } from "../src/world"
+import { drawASCIIMap } from "../src"
 
 describe("Tests padding", () => {
     test("1", () => {
