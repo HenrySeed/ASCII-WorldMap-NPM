@@ -1,4 +1,4 @@
-import { drawASCIIMap } from "../src"
+import { drawMap } from "../src"
 
 describe("Tests padding", () => {
     test("1", () => {
@@ -7,7 +7,7 @@ describe("Tests padding", () => {
             margin: 2,
             padding: 2
         }
-        const map = drawASCIIMap([], config).split("\n");
+        const map = drawMap([], config).split("\n");
 
         console.log(map)
 

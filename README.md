@@ -1,15 +1,22 @@
 # ASCII-WorldMap
 
+Want to show where your team mates are around the world? But think Google's API is just way too practical? 
+
+Just use ASCII!
+
+You can add markers to the map, or just return the map plain. There are added options for a border, padding and margins, just like css.
+
+
 # Usage
 
 ```javascript
-import { drawASCIIMap } from "./world"
+import { drawMap } from "ascii-worldmap"
 
 // you can ignore the icon and label fields, logo defaults to "#", label is unused
 const markers = [
-    { lon: -0.192098, lat: 51.610002, label: "London", icon: "\x1b[31m#\x1b[39m" },
-    { lon: -118.441495, lat: 33.929047, label: "LA", icon: "\x1b[31m#\x1b[39m" },
-    { lon: 172.63623, lat: -43.532055, label: "CHCH", icon: "\x1b[31m#\x1b[39m" }
+    { label: "London", lon: -0.192098, lat: 51.610002, icon: "\x1b[31m#\x1b[39m" },
+    { label: "LA", lon: -118.441495, lat: 33.929047, icon: "\x1b[31m#\x1b[39m" },
+    { label: "CHCH", lon: 172.63623, lat: -43.532055, icon: "\x1b[31m#\x1b[39m" }
 ];
 
 const config = {
@@ -18,16 +25,16 @@ const config = {
     padding: 2
 }
 
-console.log(drawASCIIMap(markers, config));
+console.log(drawMap(markers, config));
 ```
 
 ![Screenshot](https://i.imgur.com/w2mGsbL.png)
 
 # Docs
 
-## drawASCIIMap( markers: object, config: object )
+## drawMap( markers: object, config: object )
 
-### markers
+### markers (optional)
 | attribute | type | description |
 | --- | --- | -- |
 | lon | number  |  Longitude |
@@ -35,7 +42,7 @@ console.log(drawASCIIMap(markers, config));
 | label |  string | Label (Currently unsused) |
 | icon (optionsl) |  string | Icon used when drawing to the map Defaults to "#" |
 
-### config
+### config (optional)
 | attribute | type | description |
 | --- | --- | --- |
 | border (optional) | boolean  | Toggles border |

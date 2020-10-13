@@ -60,7 +60,7 @@ export type ASCIIMapMarker = {
  * @param {ASCIIMapStyle} configIn
  * @return {*}  {string}
  */
-export function drawASCIIMap(
+export function drawMap(
     markers: { lon: number; lat: number; label?: string; icon?: string }[] = [],
     config: { border?: boolean; margin?: number; padding?: number } = {}
 ): string {
