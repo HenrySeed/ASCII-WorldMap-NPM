@@ -20,7 +20,7 @@ const mapString = `          . _..::__:  ,-"-"._       |]       ,     _,.__
   _.___ _ _<_>\`!(._\`.\`-.    /        _._     \`_ ,_/  '  '-._.---.-.__   
 .{     " " \`-==,',._\\{  \\  / {) _   / _ ">_,-' \`                 /-/_    
 \\_.:--.       \`._ )\`^-. "'     / ( [_/(                       __,/-'       
-'"'    \\        "    _L        -_,--'                  )     /. (|         
+'"'    \\        "    _\\        -_,--'                  )     /. (|         
        |           ,'         _)_.\\\\._<> {}              _,' /  '         
        \`.         /          [_/_'\` \`"(                <'}  )            
         \\\\    .-. )          /   \`-'"..' \`:._          _)  '            
@@ -61,8 +61,8 @@ export type ASCIIMapMarker = {
  * @return {*}  {string}
  */
 export function drawASCIIMap(
-    markers: { lon: number; lat: number; label?: string; icon?: string }[],
-    config: ASCIIMapStyle
+    markers: { lon: number; lat: number; label?: string; icon?: string }[] = [],
+    config: { border?: boolean; margin?: number; padding?: number } = {}
 ): string {
     // sets up config and viewport
     const configFull: ASCIIMapStyle = {
