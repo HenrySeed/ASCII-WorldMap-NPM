@@ -62,7 +62,12 @@ export type ASCIIMapMarker = {
  */
 export function drawMap(
     markers: { lon: number; lat: number; label?: string; icon?: string }[] = [],
-    config: { border?: boolean; margin?: number; padding?: number } = {}
+    config: { border?: boolean; margin?: number; padding?: number } = {},
+    timeOverlay?: {
+        startHour: number;
+        endHour: number;
+        char: string;
+    }
 ): string {
     // sets up config and viewport
     const configFull: ASCIIMapStyle = {
@@ -79,8 +84,11 @@ export function drawMap(
     });
     const mapLines = mapString.split("\n").map((line) => line.slice(0, 70));
 
+    // generate the mapOverlay
+    const overlay = generateOverlay(timeOverlay);
+
     // Apply the border and padding to the map
-    const map_str = getMapWithStyle(mapLines, configFull).split("\n");
+    const map_str = getMapWithStyle(mapLines, configFull, overlay).split("\n");
     // Convert each marker from latLon for X,Y
     const markersXY: ASCIIMapMarker[] = markers.map((val) =>
         getXYfromLonLat(val, viewport)
@@ -114,6 +122,36 @@ export function drawMap(
     });
 
     return _ret.join("\n");
+}
+
+function generateOverlay(timeOverlay?: {
+    startHour: number;
+    endHour: number;
+    char: string;
+}): string[] {
+    if (!timeOverlay) {
+        return Array(25).fill(Array(80).fill(" ").slice(0));
+    }
+    const { startHour, endHour, char } = timeOverlay;
+
+    // find the local offset using the
+    const offsets = [...Array(24).keys()].map(val => val - 11);
+    const date = new Date();
+    const UTCHour = date.getUTCHours();
+
+    const overlay = [];
+    for (let x = 0; x < 75; x += 1) {
+       
+        const thisOffset = offsets[Math.floor((x) / 3)];
+        const thisTime = (UTCHour + thisOffset + 2.5 + 24) % 24;
+
+        if (thisTime > startHour && thisTime < endHour) {
+            overlay.push(char);
+        } else {
+            overlay.push(" ");
+        }
+    }
+    return Array(25).fill(overlay.slice(0));
 }
 
 /**
@@ -154,7 +192,11 @@ function getXYfromLonLat(
  * @param {ASCIIMapStyle} config
  * @return {*}  {string}
  */
-function getMapWithStyle(mapLines: string[], config: ASCIIMapStyle): string {
+function getMapWithStyle(
+    mapLines: string[],
+    config: ASCIIMapStyle,
+    overlay: string[]
+): string {
     const { margin: margin, border: border, padding: padding } = config;
     const cols = 70;
 
@@ -178,8 +220,15 @@ function getMapWithStyle(mapLines: string[], config: ASCIIMapStyle): string {
         out += `${xMargin}+${yBorder.repeat(cols + padding * 2)}+${xMargin}\n`;
     }
     out += yPadding;
-    for (const line of mapLines) {
-        out += `${xMargin}${xBorder}${xPadding}${line.replace(
+    for (const [lineIndex, line] of Array.from(mapLines.entries())) {
+        const lineWithOverlay = line
+            .split("")
+            .map((char, colIndex) =>
+                char === " " ? overlay[lineIndex][colIndex] : char
+            )
+            .join("");
+
+        out += `${xMargin}${xBorder}${xPadding}${lineWithOverlay.replace(
             /\n/g,
             ""
         )}${xPadding}${xBorder}${xMargin}\n`;
