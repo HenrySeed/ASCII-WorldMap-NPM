@@ -41,8 +41,8 @@ __,-----"-..?----_/ )\\    . ,-'"             "                  (__--/
                     /__/\\/                                               `;
 
 export type ASCIIMapStyle = {
-    border: boolean;
     margin: number;
+    border: boolean;
     padding: number;
 };
 
@@ -51,6 +51,15 @@ export type ASCIIMapMarker = {
     y: number;
     label: string;
     icon: string;
+};
+
+export type ASCIIMapTimeOverlay = {
+    startHour: number;
+    endHour: number;
+    char: string;
+    showDateLine?: boolean;
+    coverMap?: boolean;
+    testHour?: number;
 };
 
 /**
@@ -62,18 +71,14 @@ export type ASCIIMapMarker = {
  */
 export function drawMap(
     markers: { lon: number; lat: number; label?: string; icon?: string }[] = [],
-    config: { border?: boolean; margin?: number; padding?: number } = {},
-    timeOverlay?: {
-        startHour: number;
-        endHour: number;
-        char: string;
-    }
+    config: { margin?: number; border?: boolean; padding?: number } = {},
+    timeOverlay?: ASCIIMapTimeOverlay
 ): string {
     // sets up config and viewport
     const configFull: ASCIIMapStyle = {
+        margin: config.margin !== undefined ? config.margin : 0,
         border: config.border !== undefined ? config.border : false,
         padding: config.padding !== undefined ? config.padding : 0,
-        margin: config.margin !== undefined ? config.margin : 0,
     };
     const viewport: WebMercatorViewport = new WebMercatorViewport({
         width: 75,
@@ -88,7 +93,12 @@ export function drawMap(
     const overlay = generateOverlay(timeOverlay);
 
     // Apply the border and padding to the map
-    const map_str = getMapWithStyle(mapLines, configFull, overlay).split("\n");
+    const map_str = getMapWithStyle(
+        mapLines,
+        configFull,
+        overlay,
+        timeOverlay?.coverMap
+    ).split("\n");
     // Convert each marker from latLon for X,Y
     const markersXY: ASCIIMapMarker[] = markers.map((val) =>
         getXYfromLonLat(val, viewport)
@@ -124,29 +134,26 @@ export function drawMap(
     return _ret.join("\n");
 }
 
-function generateOverlay(timeOverlay?: {
-    startHour: number;
-    endHour: number;
-    char: string;
-}): string[] {
+function generateOverlay(timeOverlay?: ASCIIMapTimeOverlay): string[] {
     if (!timeOverlay) {
         return Array(25).fill(Array(80).fill(" ").slice(0));
     }
-    const { startHour, endHour, char } = timeOverlay;
-
-    // find the local offset using the
-    const offsets = [...Array(24).keys()].map(val => val - 11);
+    const { startHour, endHour, char, testHour } = timeOverlay;
+    const offsets = [...Array(24).keys()].map((val) => val - 11);
     const date = new Date();
-    const UTCHour = date.getUTCHours();
+
+    const UTCHour = testHour ? testHour : date.getUTCHours();
 
     const overlay = [];
     for (let x = 0; x < 75; x += 1) {
-       
-        const thisOffset = offsets[Math.floor((x) / 3)];
-        const thisTime = (UTCHour + thisOffset + 2.5 + 24) % 24;
+        const thisOffset = offsets[Math.floor(x / 3)];
+        const thisHour = (UTCHour + thisOffset + 1 + 24) % 24;
+        const isCenterline = x % 3 === 0;
 
-        if (thisTime > startHour && thisTime < endHour) {
+        if (thisHour >= startHour && thisHour < endHour) {
             overlay.push(char);
+        } else if (timeOverlay.showDateLine && thisHour === 0 && isCenterline) {
+            overlay.push("|");
         } else {
             overlay.push(" ");
         }
@@ -195,7 +202,8 @@ function getXYfromLonLat(
 function getMapWithStyle(
     mapLines: string[],
     config: ASCIIMapStyle,
-    overlay: string[]
+    overlay: string[],
+    overlayCoverMap?: boolean
 ): string {
     const { margin: margin, border: border, padding: padding } = config;
     const cols = 70;
@@ -221,17 +229,18 @@ function getMapWithStyle(
     }
     out += yPadding;
     for (const [lineIndex, line] of Array.from(mapLines.entries())) {
-        const lineWithOverlay = line
-            .split("")
-            .map((char, colIndex) =>
-                char === " " ? overlay[lineIndex][colIndex] : char
-            )
-            .join("");
+        const lineWithOverlay = [];
+        for (const [colIndex, char] of line.split("").entries()) {
+            if (overlayCoverMap || char === " ") {
+                lineWithOverlay.push(overlay[lineIndex][colIndex]);
+            } else {
+                lineWithOverlay.push(char);
+            }
+        }
 
-        out += `${xMargin}${xBorder}${xPadding}${lineWithOverlay.replace(
-            /\n/g,
-            ""
-        )}${xPadding}${xBorder}${xMargin}\n`;
+        out += `${xMargin}${xBorder}${xPadding}${lineWithOverlay
+            .join("")
+            .replace(/\n/g, "")}${xPadding}${xBorder}${xMargin}\n`;
     }
     out += yPadding;
     if (border) {
